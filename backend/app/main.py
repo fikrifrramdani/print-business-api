@@ -15,8 +15,17 @@ from app.routers import (
 )
 from app.seeders.finance_seeder import seed_finance_data
 from app.seeders.owner_seeder import seed_owner_if_empty  # ✅ tambahkan ini
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Print Business Management")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # nanti bisa dibatasi ke domain FE kamu
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ✅ Buat tabel otomatis
 Base.metadata.create_all(bind=engine)
