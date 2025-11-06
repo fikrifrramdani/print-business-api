@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+.env
+
+# Virtual environment
+venv/
+.env/
+.venv/
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Database local
+*.sqlite3
+*.db
+
+# FastAPI cache / build
+*.log
+*.pid
+
+# OS junk
+.DS_Store
+Thumbs.db
