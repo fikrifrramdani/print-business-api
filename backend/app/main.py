@@ -11,11 +11,26 @@ from app.routers import (
     order_router,
     finance_router,
     store_router,
-    user_router
+    user_router,
+
+    # Tambahan router percetakan
+    print_material_router,
+    print_conversion_router,
+    print_job_router,
+    invoice_print_router,
+    invoice_retail_router
 )
+
 from app.seeders.finance_seeder import seed_finance_data
 from app.seeders.owner_seeder import seed_owner_if_empty  # ✅ tambahkan ini
 from fastapi.middleware.cors import CORSMiddleware
+from app.models.print_material import PrintMaterial
+from app.models.print_size_conversion import PrintSizeConversion
+from app.models.print_job import PrintJob
+from app.models.invoice_print import InvoicePrint
+from app.models.invoice_retail import InvoiceRetail
+from app.models.invoice_retail_item import InvoiceRetailItem
+from app.models.stock_movement import StockMovement
 
 app = FastAPI(title="Print Business Management")
 
@@ -45,6 +60,11 @@ app.include_router(product_router.router)
 app.include_router(order_router.router)
 app.include_router(finance_router.router)
 app.include_router(store_router.router)
+app.include_router(print_material_router.router)
+app.include_router(print_conversion_router.router)
+app.include_router(print_job_router.router)
+app.include_router(invoice_print_router.router)
+app.include_router(invoice_retail_router.router)
 
 # ✅ Endpoint root
 @app.get("/")
