@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models.invoice_retail import InvoiceRetail, InvoiceRetailItem
+from app.models.invoice_retail import InvoiceRetail
+from app.models.invoice_retail_item import InvoiceRetailItem
 
 router = APIRouter(prefix="/invoice-retail", tags=["Invoice Retail"])
 
