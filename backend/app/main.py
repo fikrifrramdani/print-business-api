@@ -5,14 +5,14 @@ warnings.filterwarnings("ignore", message="Valid config keys have changed in V2"
 from fastapi import FastAPI
 from app.database import Base, engine, SessionLocal
 from app import models
-from app.routers import (
+from app.api.v1.routers import (
     auth_router,
     product_router,
     order_router,
     finance_router,
     store_router,
     user_router,
-    customer,
+    customer_router,
 
     # Tambahan router percetakan
     print_material_router,
@@ -22,9 +22,9 @@ from app.routers import (
     invoice_retail_router
 )
 
-from app.routers.stock_movement_router import router as stock_movement_router
-from app.seeders.finance_seeder import seed_finance_data
-from app.seeders.owner_seeder import seed_owner_if_empty  # ✅ tambahkan ini
+from app.api.v1.routers.stock_movement_router import router as stock_movement_router
+from app.db.seeders.finance_seeder import seed_finance_data
+from app.db.seeders.owner_seeder import seed_owner_if_empty  # ✅ tambahkan ini
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.print_material import PrintMaterial
 from app.models.print_size_conversion import PrintSizeConversion
@@ -67,7 +67,7 @@ app.include_router(print_conversion_router.router)
 app.include_router(print_job_router.router)
 app.include_router(invoice_print_router.router)
 app.include_router(invoice_retail_router.router)
-app.include_router(customer.router)
+app.include_router(customer_router.router)
 app.include_router(stock_movement_router)
 
 # ✅ Endpoint root
