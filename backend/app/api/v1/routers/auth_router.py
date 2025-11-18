@@ -7,11 +7,11 @@ from app.db.database import get_db
 from app.models.user import User
 from app.models.store import Store
 
-from app.core.security.password import hash_password, verify_password
+from app.core.security.password import get_password_hash, verify_password
 from app.core.security.jwt import create_access_token
 from app.core.security.auth_utils import get_current_user
 
-from app.schemas.user_schemas import UserCreate, UserResponse
+from app.schemas.user_schema import UserCreate, UserOut
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -22,7 +22,7 @@ def register_user(request: UserCreate, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    hashed_password = hash_password(request.password)
+    get_password_hash = hash_password(request.password)
 
     # 1️⃣ Buat store baru
     store_name = f"Toko {request.username.capitalize()}"
@@ -86,7 +86,7 @@ def test_auth():
     return {"message": "Auth router aktif"}
 
 # --- GET Users ---
-@router.get("/users", response_model=list[UserResponse])
+@router.get("/users", response_model=list[UserOut])
 def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if current_user.role != "owner":
         raise HTTPException(status_code=403, detail="Hanya owner yang dapat melihat data user")

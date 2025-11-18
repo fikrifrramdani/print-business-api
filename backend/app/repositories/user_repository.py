@@ -1,53 +1,46 @@
 # app/repositories/user_repositories.py
-from sqlalchemy.orm import Session
-from app import models, schemas
-from app.core.security.password import Hash
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from app.models.user import User
+from app.core.security.password import get_password_hash
 
 class UserRepository:
-    @staticmethod
-    def get_all(db: Session, current_user: models.User):
-        if current_user.role == "owner":
-            return db.query(models.User).all()
+    def __init__(self, db: AsyncSession):
+        self.db = db
 
-        return db.query(models.User).filter(
-            models.User.store_id == current_user.store_id
-        ).all()
+    async def get_by_id(self, user_id: int):
+        result = await self.db.execute(select(User).where(User.id == user_id))
+        return result.scalars().first()
 
-    @staticmethod
-    def get_by_id(db: Session, user_id: int):
-        return db.query(models.User).filter(
-            models.User.id == user_id
-        ).first()
+    async def get_by_email(self, email: str):
+        result = await self.db.execute(select(User).where(User.email == email))
+        return result.scalars().first()
 
-    @staticmethod
-    def get_by_username(db: Session, username: str):
-        return db.query(models.User).filter(
-            models.User.username == username
-        ).first()
-
-    @staticmethod
-    def create(db: Session, user_data: schemas.UserCreate, store_id: int):
-        new_user = models.User(
-            username=user_data.username,
-            email=user_data.email,
-            hashed_password=hash_password(user_data.password),
-            role=user_data.role or "staff",
-            store_id=store_id
+    async def create(self, data):
+        user = User(
+            email=data.email,
+            full_name=data.full_name,
+            role=data.role,
+            password_hash=hash_password(data.password),
         )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-        return new_user
-
-    @staticmethod
-    def update(db: Session, user: models.User, updated_data: dict):
-        for key, value in updated_data.items():
-            setattr(user, key, value)
-        db.commit()
-        db.refresh(user)
+        self.db.add(user)
+        await self.db.commit()
+        await self.db.refresh(user)
         return user
 
-    @staticmethod
-    def delete(db: Session, user: models.User):
-        db.delete(user)
-        db.commit()
+    async def update(self, user: User, data):
+        if data.full_name is not None:
+            user.full_name = data.full_name
+        if data.role is not None:
+            user.role = data.role
+        if data.password is not None:
+            user.password_hash = hash_password(data.password)
+
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user
+
+    async def delete(self, user: User):
+        await self.db.delete(user)
+        await self.db.commit()
+        return True

@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.schemas.user_schemas import UserCreate, UserUpdate, UserResponse
+from app.schemas.user_schema import UserCreate, UserUpdate, UserOut
 from app.models.user import User
 from app.utils.deps import get_db
 from app.core.security.auth_utils import get_current_user
@@ -13,7 +13,7 @@ router = APIRouter(
     tags=["Users"]
 )
 
-@router.get("/", response_model=list[UserResponse])
+@router.get("/", response_model=list[UserOut])
 def list_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -21,7 +21,7 @@ def list_users(
     return UserRepository.get_all(db, current_user)
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=UserOut)
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ def get_user(
     return user
 
 
-@router.post("/", response_model=UserResponse)
+@router.post("/", response_model=UserOut)
 def create_user(
     data: UserCreate,
     db: Session = Depends(get_db),
@@ -58,7 +58,7 @@ def create_user(
     return UserRepository.create(db, data, store_id)
 
 
-@router.put("/{user_id}", response_model=UserResponse)
+@router.put("/{user_id}", response_model=UserOut)
 def update_user(
     user_id: int,
     data: UserUpdate,
@@ -79,7 +79,6 @@ def update_user(
         update_data["hashed_password"] = hash_password(data.password)
 
     return UserRepository.update(db, user, update_data)
-
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
