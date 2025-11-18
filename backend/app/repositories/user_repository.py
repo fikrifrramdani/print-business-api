@@ -1,7 +1,7 @@
 # app/repositories/user_repositories.py
 from sqlalchemy.orm import Session
 from app import models, schemas
-from app.core.security.hashing import Hash
+from app.core.security.password import Hash
 
 class UserRepository:
     @staticmethod
