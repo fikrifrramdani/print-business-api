@@ -97,7 +97,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 npm run dev
 ```
 
-Dashboard: [http://localhost:3000](http://localhost:3000)
+Dashboard: [http://localhost:8000](http://localhost:8000)
 
 ---
 
