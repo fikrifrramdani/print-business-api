@@ -9,6 +9,7 @@ A full‑stack application for managing printing business operations including p
 * User Authentication (JWT)
 * Product Management
 * Order Management
+* Invoice Printing & retail ATK
 * Financial Records
 * Store Data
 * Admin Dashboard (Next.js)

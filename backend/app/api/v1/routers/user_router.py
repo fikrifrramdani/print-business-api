@@ -1,124 +1,97 @@
+#app/api/v1/routers/user_router.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app import models, schemas
-from app.database import get_db
-from app.utils.auth_utils import get_current_user, hash_password
+
+from app.schemas.user_schemas import UserCreate, UserUpdate, UserResponse
+from app.models.user import User
+from app.utils.deps import get_db
+from app.core.security.auth_utils import get_current_user
+from app.repositories.user_repository import UserRepository
 
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
 
-# ✅ Get all users (owner bisa semua, admin hanya cabangnya)
-@router.get("/", response_model=list[schemas.UserResponse])
-def get_users(
+@router.get("/", response_model=list[UserResponse])
+def list_users(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == "owner":
-        users = db.query(models.User).all()
-    elif current_user.role == "admin":
-        users = db.query(models.User).filter(models.User.store_id == current_user.store_id).all()
-    else:
-        raise HTTPException(status_code=403, detail="Access denied")
-    return users
+    return UserRepository.get_all(db, current_user)
 
 
-# ✅ Get single user
-@router.get("/{user_id}", response_model=schemas.UserResponse)
+@router.get("/{user_id}", response_model=UserResponse)
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = UserRepository.get_by_id(db, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(404, "User not found")
 
-    # admin hanya boleh lihat user di cabangnya
     if current_user.role == "admin" and user.store_id != current_user.store_id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise HTTPException(403, "Access denied")
 
     return user
 
-# ✅ Create user (owner bisa tentukan cabang, admin otomatis cabang sendiri)
-@router.post("/", response_model=schemas.UserResponse)
+
+@router.post("/", response_model=UserResponse)
 def create_user(
-    user: schemas.UserCreate,
+    data: UserCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    # Cek username unik
-    if db.query(models.User).filter(models.User.username == user.username).first():
-        raise HTTPException(status_code=400, detail="Username already exists")
+    # check username
+    if UserRepository.get_by_username(db, data.username):
+        raise HTTPException(400, "Username already exists")
 
-    # Tentukan store
+    # determine store
     if current_user.role == "owner":
-        if not user.store_id:
-            raise HTTPException(status_code=400, detail="Owner must specify store_id for new user")
-        store_id = user.store_id
-    elif current_user.role == "admin":
-        store_id = current_user.store_id
+        if not data.store_id:
+            raise HTTPException(400, "Owner must specify store_id")
+        store_id = data.store_id
     else:
-        raise HTTPException(status_code=403, detail="Access denied")
+        store_id = current_user.store_id
 
-    new_user = models.User(
-        username=user.username,
-        email=user.email,
-        hashed_password=hash_password(user.password),
-        role=user.role or "staff",
-        store_id=store_id
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    return UserRepository.create(db, data, store_id)
 
 
-# ✅ Update user
-@router.put("/{user_id}", response_model=schemas.UserResponse)
+@router.put("/{user_id}", response_model=UserResponse)
 def update_user(
     user_id: int,
-    updated_data: schemas.UserUpdate,
+    data: UserUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = UserRepository.get_by_id(db, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(404, "User not found")
 
-    # admin hanya boleh ubah user di cabangnya
     if current_user.role == "admin" and user.store_id != current_user.store_id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise HTTPException(403, "Access denied")
 
-    # Update password jika ada
-    if updated_data.password:
-        user.hashed_password = hash_password(updated_data.password)
+    update_data = data.dict(exclude_unset=True, exclude={"password"})
+    
+    # handle password
+    if data.password:
+        update_data["hashed_password"] = hash_password(data.password)
 
-    # Update field lain
-    for key, value in updated_data.dict(exclude={"password"}, exclude_unset=True).items():
-        setattr(user, key, value)
-
-    db.commit()
-    db.refresh(user)
-    return user
+    return UserRepository.update(db, user, update_data)
 
 
-# ✅ Delete user
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = UserRepository.get_by_id(db, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(404, "User not found")
 
     if current_user.role == "admin" and user.store_id != current_user.store_id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise HTTPException(403, "Access denied")
 
-    db.delete(user)
-    db.commit()
-    return None
+    UserRepository.delete(db, user)

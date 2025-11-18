@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.db.database import get_db
 from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerResponse
 from app.crud.customer import (
     get_customers, get_customer,

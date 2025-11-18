@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.db.database import get_db
 from app.models.stock_movement import StockMovement
 from app.models.product import Product
 from app.schemas.stock_movement_schemas import StockMovementCreate, StockMovementResponse

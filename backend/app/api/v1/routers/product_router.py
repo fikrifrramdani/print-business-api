@@ -1,7 +1,7 @@
 # app/routers/product_router.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.db.database import get_db
 from app.models.product import Product, ProductCategory
 from app.schemas.product_schemas import (
     ProductCreate, ProductUpdate, ProductResponse,

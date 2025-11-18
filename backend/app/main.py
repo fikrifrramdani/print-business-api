@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings("ignore", message="Valid config keys have changed in V2")
 
 from fastapi import FastAPI
-from app.database import Base, engine, SessionLocal
+from app.db.database import Base, engine, SessionLocal
 from app import models
 from app.api.v1.routers import (
     auth_router,

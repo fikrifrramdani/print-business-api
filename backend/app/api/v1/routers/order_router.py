@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import date
-from app.database import get_db
+from app.db.database import get_db
 from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.finance import FinanceRecord, FinanceCategory

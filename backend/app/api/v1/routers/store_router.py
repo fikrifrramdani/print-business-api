@@ -1,7 +1,7 @@
 # app/routers/store_router.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.db.database import get_db
 from app.models.store import Store
 from app.schemas.store_schemas import StoreCreate, StoreUpdate, StoreResponse
 from typing import List

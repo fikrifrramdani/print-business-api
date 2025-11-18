@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, Float, ForeignKey
-from app.database import Base
+from app.db.database import Base
 
 class InvoiceRetailItem(Base):
     __tablename__ = "invoice_retail_items"

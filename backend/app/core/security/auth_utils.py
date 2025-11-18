@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from app.core.config import get_settings
-from app.database import SessionLocal
+from app.db.database import SessionLocal
 from app.models.user import User
 
 settings = get_settings()

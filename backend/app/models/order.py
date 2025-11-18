@@ -1,7 +1,7 @@
 # app/models/order.py
 from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database import Base
+from app.db.database import Base
 
 class Order(Base):
     __tablename__ = "orders"

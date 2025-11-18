@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.db.database import get_db
 from app.models.print_material import PrintMaterial
 
 router = APIRouter(prefix="/print-materials", tags=["Print Materials"])

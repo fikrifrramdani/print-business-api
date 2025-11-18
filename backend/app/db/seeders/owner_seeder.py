@@ -1,6 +1,6 @@
 # app/seeders/owner_seeder.py
 from app import models
-from app.utils.auth_utils import hash_password
+from app.core.security.auth_utils import hash_password
 
 def seed_owner_if_empty(db):
     owner = db.query(models.User).filter(models.User.role == "owner").first()

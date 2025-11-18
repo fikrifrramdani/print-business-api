@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import date
-from app.database import get_db
+from app.db.database import get_db
 from app.models.finance import FinanceCategory, FinanceRecord
 from fastapi import HTTPException
 from datetime import datetime

@@ -1,7 +1,7 @@
 # # app/models/finance.py
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database import Base
+from app.db.database import Base
 
 class FinanceCategory(Base):
     __tablename__ = "finance_categories"

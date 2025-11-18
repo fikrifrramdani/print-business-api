@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
-from app.database import Base
+from app.db.database import Base
 
 class PrintSizeConversion(Base):
     __tablename__ = "print_size_conversion"
