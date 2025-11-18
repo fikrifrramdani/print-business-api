@@ -7,18 +7,11 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
+from app.core.config import get_settings
 
-# ========================
-# Konfigurasi JWT & Hash
-# ========================
-SECRET_KEY = "supersecretkey"  # 🚨 nanti pindahkan ke .env
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 12
-
+settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
 
 # ========================
 # Password Hash & Verify
@@ -26,20 +19,25 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 def hash_password(password: str):
     return pwd_context.hash(password)
 
-
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
-
 
 # ========================
 # JWT Token Utilities
 # ========================
-def create_access_token(data: dict):
+def create_access_token(data: dict, expires_delta: int = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+    expire = datetime.utcnow() + timedelta(
+        minutes=expires_delta or settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+    encoded_jwt = jwt.encode(
+        to_encode,
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
+    return encoded_jwt
 
 # ========================
 # Get Current User from Token
